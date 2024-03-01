@@ -5,7 +5,6 @@ mongoose.set("strictQuery", false);
 const connectToDatabase = async (url) => {
     try {
         await mongoose.connect(url, {
-
             dbName: 'shopping_db',
         });
         console.log("Connection successful!");

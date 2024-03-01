@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_cart_app/views/product_carousel.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -8,29 +9,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _showCarousel = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
-        children: [
-          TextButton(
-            onPressed: () {},
-            child: const Text('Create'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Read'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Update'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Delete'),
-          ),
-        ],
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _showCarousel = true;
+                });
+              },
+              child: const Text('Load Products'),
+            ),
+            if (_showCarousel) const ProductCarousel(),
+          ],
+        ),
       ),
     );
   }
