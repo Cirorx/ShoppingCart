@@ -1,25 +1,57 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shopping_cart_app/firebase_options.dart';
-import 'package:shopping_cart_app/home.dart';
+import 'package:shopping_cart_app/views/home.dart';
+import 'service/auth/auth_service.dart';
+import 'utils/constants.dart';
+import 'views/login.dart';
+import 'views/register.dart';
+import 'views/verify_email.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  runApp(
+    MaterialApp(
+      title: 'A simple Shopping Cart :)',
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+      ),
+      home: const HomePage(),
+      routes: {
+        homeRoute: (context) => const HomeScreen(),
+        loginRoute: (context) => const LoginView(),
+        registerRoute: (context) => const RegisterView(),
+        verifyEmailRoute: (context) => const VerifiyEmailView(),
+      },
+    ),
   );
-
-  runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: HomeScreen(),
+    return FutureBuilder(
+      future: AuthService.firebase().initialize(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            final user = AuthService.firebase().currentUser;
+
+            if (user == null) {
+              //Go to login
+              return const LoginView();
+            } else if (!user.isEmailVerified) {
+              //Offer the user to verify email
+              return const VerifiyEmailView();
+            } else {
+              //Home page of the app
+              return const HomeScreen();
+            }
+
+          default:
+            return const CircularProgressIndicator();
+        }
+      },
     );
   }
 }
