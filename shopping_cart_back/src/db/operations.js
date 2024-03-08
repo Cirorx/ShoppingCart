@@ -71,8 +71,19 @@ const modifyCart = async (userId, productId, quantity) => {
     }
 };
 
+const getProductsByCategory = async (category) => {
+    try {
+        const products = await Product.find({ category });
+        return products;
+    } catch (error) {
+        console.error("There was an error fetching the products by category:", error);
+        throw error;
+    }
+};
+
 module.exports = {
     getAllProducts,
     getStockReport,
     modifyCart,
+    getProductsByCategory,
 };

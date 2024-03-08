@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../model/product_model.dart';
+import '../utils/widgets.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
 
-  const ProductDetailScreen({Key? key, required this.product})
-      : super(key: key);
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -23,31 +23,11 @@ class ProductDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    'Description:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(product.description),
-                  SizedBox(height: 10),
-                  Text(
-                    'Price: \$${product.price}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Stock: ${product.stock}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Brand: ${product.brand}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Category: ${product.category}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  infoWidget('Description:', '${product.description}\n'),
+                  infoWidget('Price: \$${product.price}', ''),
+                  infoWidget('Stock: ${product.stock}', ''),
+                  infoWidget('Brand: ${product.brand}', ''),
+                  infoWidget('Category: ${product.category.toUpperCase()}', ''),
                 ],
               ),
             ),

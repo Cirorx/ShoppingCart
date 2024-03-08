@@ -1,7 +1,7 @@
 const express = require('express');
 const { getAllProducts,
     getStockReport,
-    modifyCart, } = require('./operations');
+    modifyCart, getProductsByCategory } = require('./operations');
 
 const router = express.Router();
 
@@ -37,6 +37,17 @@ router.post("/modify-cart", async (req, res) => {
     } catch (error) {
         console.error("Error modifying cart:", error);
         res.status(500).send("An error occurred while modifying the cart");
+    }
+});
+
+router.get("/products/category/:category", async (req, res) => {
+    const category = req.params.category;
+    try {
+        const products = await getProductsByCategory(category);
+        res.json(products);
+    } catch (error) {
+        console.error("Error getting products by category:", error);
+        res.status(500).json({ error: "Error getting products by category" });
     }
 });
 

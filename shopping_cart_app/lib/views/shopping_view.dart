@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../model/product_model.dart';
 import '../service/api/product_service.dart';
@@ -11,18 +13,23 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
+  Future<List<Product>>? _productsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _productsFuture = ProductService.getProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Product>>(
-      future: ProductService.getProducts(),
+      future: _productsFuture,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final List<Product> products = snapshot.data!;
 
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('Shopping List'),
-            ),
             body: GridView.count(
               crossAxisCount: 2,
               children: List.generate(products.length, (index) {
@@ -38,37 +45,58 @@ class _ShoppingListState extends State<ShoppingList> {
                   },
                   child: Container(
                     margin:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(3)),
-                      child: Stack(
-                        children: <Widget>[
-                          Image.network(products[index].thumbnail),
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: () {
-                                    //TODO: cart implementation
-                                  },
+                        const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
+                    child: Column(
+                      children: <Widget>[
+                        Expanded(
+                          flex: 3,
+                          child: Stack(
+                            children: <Widget>[
+                              Image.network(products[index].thumbnail),
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.bottomCenter,
+                                      end: Alignment.topCenter,
+                                      colors: [
+                                        const Color.fromARGB(255, 255, 255, 255)
+                                            .withOpacity(0.8),
+                                        Colors.transparent
+                                      ],
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: <Widget>[
+                                      IconButton(
+                                        iconSize: 20,
+                                        icon: const Icon(Icons.remove),
+                                        onPressed: () {
+                                          //TODO: cart implementation
+                                        },
+                                      ),
+                                      Text(
+                                        'Precio: \$${products[index].price}',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      IconButton(
+                                        iconSize: 20,
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () {
+                                          //TODO: cart implementation
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                Text('Precio: \$${products[index].price}'),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () {
-                                    //TODO: cart implementation
-                                  },
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
