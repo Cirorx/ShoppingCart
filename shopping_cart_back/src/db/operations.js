@@ -1,5 +1,6 @@
 const Product = require("./models/product");
 const Cart = require("./models/cart");
+const User = require("./models/user")
 const mongoose = require('mongoose');
 
 const getAllProducts = async () => {
@@ -30,10 +31,8 @@ const getStockReport = async () => {
     }
 };
 
-const modifyCart = async (userId, productId, quantity) => {
+const modifyCart = async (userEmail, productId, quantity) => {
     try {
-
-        const userObjectId = new mongoose.Types.ObjectId(userId);
 
         const product = await Product.findById(productId);
         if (!product) {
@@ -45,7 +44,7 @@ const modifyCart = async (userId, productId, quantity) => {
             throw new Error("Quantity exceeds available stock");
         }
 
-        let cart = await Cart.findOne({ userId: userObjectId });
+        let cart = await Cart.findOne({ userEmail: userEmail });
         if (!cart) {
             cart = new Cart({ userId, items: [] });
         }
@@ -81,9 +80,44 @@ const getProductsByCategory = async (category) => {
     }
 };
 
+const createUser = async (email) => {
+    try {
+
+        const user = new User({
+            email,
+            cart: new Cart({ items: [] }),
+        });
+
+        await user.save();
+        return "User was created successfully!";
+    } catch (error) {
+        console.error("Error creating user:", error);
+        throw new Error("An error occurred while creating user");
+    }
+};
+
+const getUserCart = async (email) => {
+    try {
+        let user = await User.findOne({ email }).populate('cart');
+        if (!user) {
+            // its a new user
+            await createUser(email);
+            user = await User.findOne({ email }).populate('cart');
+        }
+        const cartItems = user.cart ? user.cart.items : [];
+
+        return cartItems;
+    } catch (error) {
+        console.error("Error getting cart products by email:", error);
+        throw new Error("An error occurred while getting cart products by email");
+    }
+};
+
 module.exports = {
     getAllProducts,
     getStockReport,
     modifyCart,
     getProductsByCategory,
+    createUser,
+    getUserCart,
 };
