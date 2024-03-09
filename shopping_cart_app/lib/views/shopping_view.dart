@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import '../model/product_model.dart';
+import '../service/api/cart_service.dart';
 import '../service/api/product_service.dart';
 import 'product_detail_view.dart';
 
 class ShoppingList extends StatefulWidget {
-  const ShoppingList({super.key});
+  final String email;
+
+  const ShoppingList({required this.email, super.key});
   @override
   State<ShoppingList> createState() => _ShoppingListState();
 }
@@ -35,7 +38,7 @@ class _ShoppingListState extends State<ShoppingList> {
               children: List.generate(products.length, (index) {
                 return GestureDetector(
                   onTap: () {
-                    // Navegar a la vista de detalles del producto
+                    // go to product details
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -74,19 +77,27 @@ class _ShoppingListState extends State<ShoppingList> {
                                         iconSize: 20,
                                         icon: const Icon(Icons.remove),
                                         onPressed: () {
-                                          //TODO: cart implementation
+                                          CartService.modifyCart(
+                                            widget.email,
+                                            products[index].id,
+                                            -1,
+                                          );
                                         },
                                       ),
                                       Text(
                                         'Precio: \$${products[index].price}',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
                                       IconButton(
                                         iconSize: 20,
                                         icon: const Icon(Icons.add),
                                         onPressed: () {
-                                          //TODO: cart implementation
+                                          CartService.modifyCart(
+                                            widget.email,
+                                            products[index].id,
+                                            1,
+                                          );
                                         },
                                       ),
                                     ],
