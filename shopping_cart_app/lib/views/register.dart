@@ -5,7 +5,7 @@ import 'package:shopping_cart_app/service/auth/auth_exceptions.dart';
 import 'package:shopping_cart_app/service/auth/auth_service.dart';
 
 import '../utils/constants.dart';
-import '../utils/dialogs/error.dialog.dart';
+import '../utils/dialogs/error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
