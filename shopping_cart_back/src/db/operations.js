@@ -45,9 +45,6 @@ const modifyCart = async (userEmail, productId, quantity) => {
         }
 
         let cart = await Cart.findOne({ userEmail: userEmail });
-        if (!cart) {
-            cart = new Cart({ userId, items: [] });
-        }
 
         // update quantity
         const productIndex = cart.items.findIndex(item => item.productId.equals(productId));
@@ -83,9 +80,12 @@ const getProductsByCategory = async (category) => {
 const createUser = async (email) => {
     try {
 
+        const cart = new Cart({ userEmail: email, items: [] });
+        await cart.save();
+
         const user = new User({
             email,
-            cart: new Cart({ items: [] }),
+            cart: cart._id, // Associate the cart with the user
         });
 
         await user.save();
@@ -100,16 +100,30 @@ const getUserCart = async (email) => {
     try {
         let user = await User.findOne({ email }).populate('cart');
         if (!user) {
-            // its a new user
-            await createUser(email);
-            user = await User.findOne({ email }).populate('cart');
+            throw new Error("User not found");
         }
-        const cartItems = user.cart ? user.cart.items : [];
 
-        return cartItems;
+        if (!user.cart) {
+            return [];
+        }
+
+        return user.cart.items;
     } catch (error) {
         console.error("Error getting cart products by email:", error);
         throw new Error("An error occurred while getting cart products by email");
+    }
+};
+
+const checkUser = async (email) => {
+    try {
+        let user = await User.findOne({ email });
+        if (!user) {
+            await createUser(email);
+        }
+
+    } catch (error) {
+        console.error("Error checking user:", error);
+        throw new Error("An error occurred while checking user");
     }
 };
 
@@ -120,4 +134,6 @@ module.exports = {
     getProductsByCategory,
     createUser,
     getUserCart,
+    checkUser,
+
 };

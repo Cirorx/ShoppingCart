@@ -1,6 +1,6 @@
 const express = require('express');
 const { getAllProducts, getStockReport,
-    modifyCart, getProductsByCategory, createUser, getUserCart } = require('./operations');
+    modifyCart, getProductsByCategory, checkUser, getUserCart } = require('./operations');
 
 const router = express.Router();
 
@@ -50,25 +50,25 @@ router.get("/products/category/:category", async (req, res) => {
     }
 });
 
-router.post("/create-user", async (req, res) => {
+router.post("/cart", async (req, res) => {
     const { email } = req.body;
-    try {
-        const result = await createUser(email);
-        res.send(result);
-    } catch (error) {
-        console.error("Error creating user:", error);
-        res.status(500).json({ error: "An error occurred while creating user" });
-    }
-});
-
-router.get("/cart/:email", async (req, res) => {
-    const email = req.params.email;
     try {
         const cartProducts = await getUserCart(email);
         res.json(cartProducts);
     } catch (error) {
         console.error("Error getting cart products by email:", error);
         res.status(500).json({ error: "Error getting cart products by email" });
+    }
+});
+
+router.post("/check-user", async (req, res) => {
+    const { email } = req.body;
+    try {
+        await checkUser(email);
+        res.status(200).json({ message: "User exists" });
+    } catch (error) {
+        console.error("Error checking user:", error);
+        res.status(500).json({ error: "An error occurred while checking user" });
     }
 });
 
