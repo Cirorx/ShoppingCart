@@ -37,15 +37,14 @@ class HomePage extends StatelessWidget {
           case ConnectionState.done:
             final user = AuthService.firebase().currentUser;
 
-            if (user == null) {
-              //Go to login
-              return const LoginView();
-            } else if (!user.isEmailVerified) {
-              //Offer the user to verify email
-              return const VerifiyEmailView();
+            if (user != null) {
+              if (user.isEmailVerified) {
+                return const HomeScreen();
+              } else {
+                return const VerifiyEmailView();
+              }
             } else {
-              //Home page of the app
-              return const HomeScreen();
+              return const LoginView();
             }
 
           default:

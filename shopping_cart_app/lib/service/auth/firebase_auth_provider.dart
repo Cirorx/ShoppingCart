@@ -3,7 +3,6 @@ import 'package:shopping_cart_app/firebase_options.dart';
 import 'package:shopping_cart_app/service/auth/auth_user.dart';
 import 'package:shopping_cart_app/service/auth/auth_exceptions.dart';
 import 'package:shopping_cart_app/service/auth/auth_provider.dart';
-import 'dart:developer' as devtools show log;
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
 
@@ -11,7 +10,8 @@ class FirebaseAuthProvider implements AuthProvider {
   @override
   Future<void> initialize() async {
     await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 
   @override
@@ -31,11 +31,11 @@ class FirebaseAuthProvider implements AuthProvider {
         throw UserNotLoggedInAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == "weak-password") {
+      if (e.code == 'weak-password') {
         throw WeakPasswordAuthException();
-      } else if (e.code == "email-already-in-use") {
+      } else if (e.code == 'email-already-in-use') {
         throw EmailAlreadyInUseAuthException();
-      } else if (e.code == "invalid-email") {
+      } else if (e.code == 'invalid-email') {
         throw InvalidEmailAuthException();
       } else {
         throw GenericAuthException();
@@ -61,12 +61,10 @@ class FirebaseAuthProvider implements AuthProvider {
     required String password,
   }) async {
     try {
-      devtools.log("Im in logIn ");
-      FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
       final user = currentUser;
       if (user != null) {
         return user;
@@ -74,18 +72,15 @@ class FirebaseAuthProvider implements AuthProvider {
         throw UserNotLoggedInAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      devtools.log("Error code is ${e.code}");
-      if (e.code == 'firebase_auth/user-not-found') {
+      if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
-      } else if (e.code == 'firebase_auth/user-not-found') {
-        throw UserNotFoundAuthException();
-      } else if (e.code == 'firebase_auth/wrong-password') {
+      } else if (e.code == 'wrong-password') {
         throw WrongPasswordAuthException();
-      } else if (e.code == 'firebase_auth/invalid-credential')
-        throw WrongPasswordAuthException();
-      else {
+      } else {
         throw GenericAuthException();
       }
+    } catch (_) {
+      throw GenericAuthException();
     }
   }
 

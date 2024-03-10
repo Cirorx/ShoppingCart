@@ -1,18 +1,23 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import '/utils/constants.dart' as constants;
 
 class ApiService {
-  static Future<dynamic> createAppUser(String email) async {
+  static Future<dynamic> checkUser(String email) async {
+    var map = {'email': email};
+    var body = json.encode(map);
     final response = await http.post(
-      Uri.parse(constants.HOST + constants.PATH_CREATE_USER),
-      body: {'email': email},
+      headers: {"Content-Type": "application/json"},
+      Uri.parse(constants.HOST + constants.PATH_CHECK_USER),
+      body: body,
     );
+
     if (response.statusCode == 200) {
-      return response.body;
+      return response;
     } else {
-      throw Exception('Failed to create app user');
+      throw Exception('Failed to check user');
     }
   }
 
@@ -39,8 +44,12 @@ class ApiService {
   }
 
   static Future<dynamic> getCartProducts(String email) async {
-    final response = await http.get(
-      Uri.parse(constants.HOST + constants.PATH_USER_CART + email),
+    var map = {'email': email};
+    var body = json.encode(map);
+    final response = await http.post(
+      headers: {"Content-Type": "application/json"},
+      Uri.parse(constants.HOST + constants.PATH_USER_CART),
+      body: body,
     );
     if (response.statusCode == 200) {
       return response.body;
@@ -53,13 +62,16 @@ class ApiService {
 
   static Future<void> modifyCart(
       String email, String productId, int quantity) async {
+    var map = {
+      'userEmail': email,
+      'productId': productId,
+      'quantity': quantity
+    };
+    var body = json.encode(map);
     await http.post(
+      headers: {"Content-Type": "application/json"},
       Uri.parse(constants.HOST + constants.PATH_MODIFY_CART),
-      body: {
-        'userEmail': email,
-        'productId': productId,
-        'quantity': quantity,
-      },
+      body: body,
     );
   }
 }
