@@ -38,12 +38,13 @@ class _ShoppingListState extends State<ShoppingList> {
               children: List.generate(products.length, (index) {
                 return GestureDetector(
                   onTap: () {
-                    // go to product details
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              ProductDetailScreen(product: products[index])),
+                          builder: (context) => ProductDetailScreen(
+                                productId: products[index].id,
+                                email: widget.email,
+                              )),
                     );
                   },
                   child: Container(
@@ -56,54 +57,6 @@ class _ShoppingListState extends State<ShoppingList> {
                           child: Stack(
                             children: <Widget>[
                               Image.network(products[index].thumbnail),
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                      colors: [
-                                        const Color.fromARGB(255, 255, 255, 255)
-                                            .withOpacity(0.8),
-                                        Colors.transparent
-                                      ],
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: <Widget>[
-                                      IconButton(
-                                        iconSize: 20,
-                                        icon: const Icon(Icons.remove),
-                                        onPressed: () {
-                                          CartService.modifyCart(
-                                            widget.email,
-                                            products[index].id,
-                                            -1,
-                                          );
-                                        },
-                                      ),
-                                      Text(
-                                        'Precio: \$${products[index].price}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      IconButton(
-                                        iconSize: 20,
-                                        icon: const Icon(Icons.add),
-                                        onPressed: () {
-                                          CartService.modifyCart(
-                                            widget.email,
-                                            products[index].id,
-                                            1,
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),

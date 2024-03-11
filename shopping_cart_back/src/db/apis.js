@@ -1,6 +1,6 @@
 const express = require('express');
 const { getAllProducts, getStockReport,
-    modifyCart, getProductsByCategory, checkUser, getUserCart } = require('./operations');
+    modifyCart, getProductsByCategory, checkUser, getUserCart, getProductById } = require('./operations');
 
 const router = express.Router();
 
@@ -21,6 +21,17 @@ router.get("/products", async (req, res) => {
     } catch (error) {
         console.error("Error getting products:", error);
         res.status(500).json({ error: "Error getting products" });
+    }
+});
+
+router.get("/product/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const products = await getProductById(id);
+        res.json(products);
+    } catch (error) {
+        console.error("Error getting product by id: ", error);
+        res.status(500).json({ error: "Error getting product by id" });
     }
 });
 

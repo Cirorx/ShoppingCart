@@ -5,7 +5,7 @@ class Product {
   final double price;
   final double discountPercentage;
   final double rating;
-  final int stock;
+  int stock;
   final String brand;
   final String category;
   final String thumbnail;

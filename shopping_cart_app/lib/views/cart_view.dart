@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../model/product_model.dart';
+import 'package:shopping_cart_app/views/product_detail_view.dart';
 import '../service/api/cart_service.dart';
 
 class CartView extends StatelessWidget {
@@ -10,7 +9,7 @@ class CartView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Product>>(
+    return FutureBuilder<List<dynamic>>(
       future: CartService.getCartProducts(email),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -18,18 +17,38 @@ class CartView extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          final List<Product> products = snapshot.data!;
-
-          if (products.isEmpty) {
+          final List<dynamic> cartProducts = snapshot.data!;
+          double totalValue = 0;
+          if (cartProducts.isEmpty) {
             return const Center(child: Text('Cart is empty'));
           }
 
           return ListView.builder(
-            itemCount: products.length,
+            itemCount: cartProducts.length,
             itemBuilder: (context, index) {
+              final product = cartProducts[index]['productInfo'];
+              final quantity = cartProducts[index]['quantity'];
+
+              totalValue += product['price'] * quantity;
               return ListTile(
-                title: Text(products[index].title),
-                subtitle: Text('Price: \$${products[index].price}'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailScreen(
+                        productId: product['productId'],
+                        email: email,
+                      ),
+                    ),
+                  );
+                },
+                leading: Container(
+                  width: 90,
+                  height: 90,
+                  child: Image.network(product['thumbnail']),
+                ),
+                title: Text(product['title']),
+                subtitle: Text('Price: \$${product['price']}'),
               );
             },
           );

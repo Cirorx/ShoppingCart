@@ -74,4 +74,15 @@ class ApiService {
       body: body,
     );
   }
+
+  static getProductById(productId) async {
+    final response = await http.get(
+      Uri.parse(constants.HOST + constants.PATH_ONE_PRODUCT + productId),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to load products by category');
+    }
+  }
 }

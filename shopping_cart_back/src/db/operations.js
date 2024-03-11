@@ -1,7 +1,7 @@
 const Product = require("./models/product");
 const Cart = require("./models/cart");
 const User = require("./models/user")
-const mongoose = require('mongoose');
+
 
 const getAllProducts = async () => {
     try {
@@ -50,6 +50,9 @@ const modifyCart = async (userEmail, productId, quantity) => {
         const productIndex = cart.items.findIndex(item => item.productId.equals(productId));
         if (productIndex !== -1) {
             cart.items[productIndex].quantity = cart.items[productIndex].quantity + quantity;
+            if (cart.items[productIndex].quantity <= 0) {
+                cart.items.splice(productIndex, 1);
+            }
         } else if (quantity > 0) {
             cart.items.push({ productId, quantity });
         }
@@ -77,6 +80,16 @@ const getProductsByCategory = async (category) => {
     }
 };
 
+const getProductById = async (id) => {
+    try {
+        const product = await Product.findById(id);
+        return product;
+    } catch (error) {
+        console.error("There was an error fetching the product by id:", error);
+        throw error;
+    }
+};
+
 const createUser = async (email) => {
     try {
 
@@ -98,7 +111,14 @@ const createUser = async (email) => {
 
 const getUserCart = async (email) => {
     try {
-        let user = await User.findOne({ email }).populate('cart');
+        let user = await User.findOne({ email }).populate({
+            path: 'cart',
+            populate: {
+                path: 'items.productId',
+                model: 'Product'
+            }
+        });
+
         if (!user) {
             throw new Error("User not found");
         }
@@ -107,7 +127,19 @@ const getUserCart = async (email) => {
             return [];
         }
 
-        return user.cart.items;
+
+        const cartItems = user.cart.items.map(item => ({
+            productInfo: {
+                title: item.productId.title,
+                price: item.productId.price,
+                thumbnail: item.productId.thumbnail,
+                productId: item.productId._id
+            },
+            quantity: item.quantity
+        })
+        );
+
+        return cartItems;
     } catch (error) {
         console.error("Error getting cart products by email:", error);
         throw new Error("An error occurred while getting cart products by email");
@@ -135,5 +167,5 @@ module.exports = {
     createUser,
     getUserCart,
     checkUser,
-
+    getProductById
 };
