@@ -37,9 +37,7 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-            title: const Text("Login"),
-            backgroundColor: const Color.fromARGB(255, 177, 195, 245)),
+        appBar: AppBar(title: const Text("Login"), backgroundColor: const Color.fromARGB(255, 177, 195, 245)),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -60,8 +58,7 @@ class _LoginViewState extends State<LoginView> {
                 final password = _password.text;
 
                 try {
-                  await AuthService.firebase()
-                      .logIn(email: email, password: password);
+                  await AuthService.firebase().logIn(email: email, password: password);
                   final user = AuthService.firebase().currentUser;
                   if (user?.isEmailVerified ?? false) {
                     //user is verified

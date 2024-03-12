@@ -3,8 +3,7 @@ import 'package:shopping_cart_app/firebase_options.dart';
 import 'package:shopping_cart_app/service/auth/auth_user.dart';
 import 'package:shopping_cart_app/service/auth/auth_exceptions.dart';
 import 'package:shopping_cart_app/service/auth/auth_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart'
-    show FirebaseAuth, FirebaseAuthException;
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, FirebaseAuthException;
 
 class FirebaseAuthProvider implements AuthProvider {
   @override
@@ -74,7 +73,7 @@ class FirebaseAuthProvider implements AuthProvider {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
-      } else if (e.code == 'wrong-password') {
+      } else if (e.code == 'invalid-credential') {
         throw WrongPasswordAuthException();
       } else {
         throw GenericAuthException();
