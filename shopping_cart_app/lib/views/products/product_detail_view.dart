@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:shopping_cart_app/service/api/product_service.dart';
 import '../../model/product_model.dart';
@@ -8,8 +10,7 @@ class ProductDetailView extends StatefulWidget {
   final String email;
   final String productId;
 
-  const ProductDetailView(
-      {super.key, required this.productId, required this.email});
+  const ProductDetailView({super.key, required this.productId, required this.email});
 
   @override
   State<ProductDetailView> createState() => _ProductDetailViewState();
@@ -38,7 +39,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 return Text(snapshot.data!.title);
               }
             } else {
-              return Text('Loading...');
+              return const Text('Loading...');
             }
           },
         ),
@@ -96,31 +97,51 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                           children: <Widget>[
                             ElevatedButton(
                               onPressed: () async {
-                                await CartService.modifyCart(
+                                final cartProducts = await CartService.getCartProducts(
                                   widget.email,
-                                  product.id,
-                                  1,
                                 );
-                                showToast(
-                                  "${product.title} was added to your cart.",
+                                final isProductInCart = cartProducts.any(
+                                  (item) => item['productInfo']['productId'] == product.id,
                                 );
-                              },
-                              style: getButtonStyle(),
-                              child: const Text('Add to cart'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                await CartService.modifyCart(
-                                  widget.email,
-                                  product.id,
-                                  -1,
-                                );
-                                showToast(
-                                  "${product.title} was removed from your cart.",
-                                );
+
+                                if (isProductInCart) {
+                                  await CartService.modifyCart(
+                                    widget.email,
+                                    product.id,
+                                    -1,
+                                  );
+                                  showToast(
+                                    "${product.title} was removed from your cart.",
+                                  );
+                                  Navigator.pop(context, true);
+                                } else {
+                                  showToast(
+                                    "${product.title} is not in your cart.",
+                                  );
+                                }
                               },
                               style: getButtonStyle(),
                               child: const Text('Remove from cart'),
+                            ),
+                            ElevatedButton(
+                              onPressed: product.stock > 0
+                                  ? () async {
+                                      await CartService.modifyCart(
+                                        widget.email,
+                                        product.id,
+                                        1,
+                                      );
+                                      showToast(
+                                        "${product.title} was added to your cart.",
+                                      );
+                                    }
+                                  : () {
+                                      showToast(
+                                        "There's no more stock available.",
+                                      );
+                                    },
+                              style: getButtonStyle(),
+                              child: const Text('Add to cart'),
                             ),
                           ],
                         ),
@@ -131,7 +152,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               );
             }
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),

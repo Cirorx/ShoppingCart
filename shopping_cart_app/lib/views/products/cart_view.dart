@@ -20,7 +20,7 @@ class _CartViewState extends State<CartView> {
     _cartProductsFuture = CartService.getCartProducts(widget.email);
     calculateTotalValue();
     CartService.quantityStream.listen((_) {
-      calculateTotalValue();
+      refreshCartProducts();
     });
   }
 
@@ -33,6 +33,65 @@ class _CartViewState extends State<CartView> {
         return previous + (quantity * price);
       });
     });
+  }
+
+  void refreshCartProducts() async {
+    setState(() {
+      _cartProductsFuture = CartService.getCartProducts(widget.email);
+    });
+    calculateTotalValue();
+  }
+
+  Widget buildProductTile(dynamic product, int quantity) {
+    return ListTile(
+      onTap: () async {
+        final removed = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailView(
+              productId: product['productId'],
+              email: widget.email,
+            ),
+          ),
+        );
+        if (removed != null && removed) {
+          refreshCartProducts();
+        }
+      },
+      leading: SizedBox(
+        width: 120,
+        height: 120,
+        child: Image.network(product['thumbnail']),
+      ),
+      title: Text(product['title']),
+      subtitle: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text('Price: \$${product['price']} '),
+          StreamBuilder<Map<String, int>>(
+            stream: CartService.quantityStream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final updatedQuantities = snapshot.data!;
+                final updatedQuantity =
+                    updatedQuantities[product['productId']] ?? quantity;
+                return Text('Quantity: $updatedQuantity');
+              } else {
+                return Text('Quantity: $quantity');
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildBottomSheet() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Text("Total is \$$totalValue"),
+    );
   }
 
   @override
@@ -56,58 +115,14 @@ class _CartViewState extends State<CartView> {
               itemCount: cartProducts.length,
               itemBuilder: (context, index) {
                 final product = cartProducts[index]['productInfo'];
-
                 final quantity = cartProducts[index]['quantity'];
-
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailView(
-                          productId: product['productId'],
-                          email: widget.email,
-                        ),
-                      ),
-                    );
-                  },
-                  leading: SizedBox(
-                    width: 120,
-                    height: 120,
-                    child: Image.network(product['thumbnail']),
-                  ),
-                  title: Text(product['title']),
-                  subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text('Price: \$${product['price']} '),
-                      StreamBuilder<Map<String, int>>(
-                        stream: CartService.quantityStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final updatedQuantities = snapshot.data!;
-                            final updatedQuantity =
-                                updatedQuantities[product['productId']] ??
-                                    quantity;
-                            return Text('Quantity: $updatedQuantity');
-                          } else {
-                            return Text('Quantity: $quantity');
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                );
+                return buildProductTile(product, quantity);
               },
             );
           }
         },
       ),
-      bottomSheet: Container(
-        padding: const EdgeInsets.all(16.0),
-        margin: const EdgeInsets.only(bottom: 8),
-        child: Text("Total is \$$totalValue"),
-      ),
+      bottomSheet: buildBottomSheet(),
     );
   }
 }
