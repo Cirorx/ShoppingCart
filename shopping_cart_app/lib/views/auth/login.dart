@@ -6,6 +6,7 @@ import 'package:shopping_cart_app/service/auth/auth_service.dart';
 
 import '../../utils/constants.dart';
 import '../../utils/dialogs/error_dialog.dart';
+import '../../utils/widgets.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -34,77 +35,80 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Login"),
-      ),
-      body: Column(
-        children: [
-          TextField(
-            controller: _email,
-            enableSuggestions: true,
-            autocorrect: false,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: "Email"),
-          ),
-          TextField(
-            controller: _password,
-            obscureText: true,
-            enableSuggestions: false,
-            autocorrect: false,
-            decoration: const InputDecoration(hintText: "Password"),
-          ),
-          TextButton(
-            onPressed: () async {
-              final email = _email.text;
-              final password = _password.text;
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+            title: const Text("Login"),
+            backgroundColor: const Color.fromARGB(255, 177, 195, 245)),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AuthTextField(
+              controller: _email,
+              hintText: "Email",
+            ),
+            AuthTextField(
+              controller: _password,
+              hintText: "Password",
+              isPassoword: true,
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () async {
+                final email = _email.text;
+                final password = _password.text;
 
-              try {
-                await AuthService.firebase()
-                    .logIn(email: email, password: password);
-                final user = AuthService.firebase().currentUser;
-                if (user?.isEmailVerified ?? false) {
-                  //user is verified
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    homeRoute,
-                    (route) => false,
+                try {
+                  await AuthService.firebase()
+                      .logIn(email: email, password: password);
+                  final user = AuthService.firebase().currentUser;
+                  if (user?.isEmailVerified ?? false) {
+                    //user is verified
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      homeRoute,
+                      (route) => false,
+                    );
+                  } else {
+                    //user isn't verified
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      verifyEmailRoute,
+                      (route) => false,
+                    );
+                  }
+                } on UserNotFoundAuthException {
+                  await showErrorDialog(
+                    context,
+                    "User not found.",
                   );
-                } else {
-                  //user isn't verified
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    verifyEmailRoute,
-                    (route) => false,
+                } on WrongPasswordAuthException {
+                  await showErrorDialog(
+                    context,
+                    "Wrong credentials.",
+                  );
+                } on GenericAuthException {
+                  await showErrorDialog(
+                    context,
+                    "Authentication error.",
                   );
                 }
-              } on UserNotFoundAuthException {
-                await showErrorDialog(
-                  context,
-                  "User not found.",
+              },
+              style: getButtonStyle(),
+              child: const Text("Login"),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  registerRoute,
+                  (route) => false,
                 );
-              } on WrongPasswordAuthException {
-                await showErrorDialog(
-                  context,
-                  "Wrong credentials.",
-                );
-              } on GenericAuthException {
-                await showErrorDialog(
-                  context,
-                  "Authentication error.",
-                );
-              }
-            },
-            child: const Text("Login"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                registerRoute,
-                (route) => false,
-              );
-            },
-            child: const Text("Not registered? Register here!"),
-          )
-        ],
+              },
+              style: getButtonStyle(),
+              child: const Text("Not registered? \n Register here!"),
+            ),
+          ],
+        ),
       ),
     );
   }

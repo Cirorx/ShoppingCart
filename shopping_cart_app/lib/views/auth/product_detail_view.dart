@@ -102,8 +102,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                                   1,
                                 );
                                 showToast(
-                                  "${product.title} was added to your cart.",
-                                );
+                                    "${product.title} was added to your cart.");
                               },
                               style: getButtonStyle(),
                               child: const Text('Add to cart'),

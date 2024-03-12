@@ -6,6 +6,7 @@ import 'package:shopping_cart_app/service/auth/auth_service.dart';
 
 import '../../utils/constants.dart';
 import '../../utils/dialogs/error_dialog.dart';
+import '../../utils/widgets.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -42,22 +43,19 @@ class _RegisterViewState extends State<RegisterView> {
         title: const Text("Register"),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TextField(
+          AuthTextField(
             controller: _email,
-            enableSuggestions: true,
-            autocorrect: false,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: "Email"),
+            hintText: "Email",
           ),
-          TextField(
+          AuthTextField(
             controller: _password,
-            obscureText: true,
-            enableSuggestions: false,
-            autocorrect: false,
-            decoration: const InputDecoration(hintText: "Password"),
+            hintText: "Password",
+            isPassoword: true,
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () async {
               final email = _email.text;
               final password = _password.text;
@@ -67,8 +65,6 @@ class _RegisterViewState extends State<RegisterView> {
                     .createUser(email: email, password: password);
 
                 //now that the user was successfully created, we need to verify it
-                // ignore: unused_local_variable
-                final user = AuthService.firebase().currentUser;
                 await AuthService.firebase().sendEmailVerification();
 
                 //little snackbar confirmation
@@ -95,17 +91,20 @@ class _RegisterViewState extends State<RegisterView> {
                 );
               }
             },
+            style: getButtonStyle(),
             child: const Text("Register"),
           ),
-          TextButton(
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  loginRoute,
-                  (route) => false,
-                );
-              },
-              child: const Text("Already registered? Login here."))
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                loginRoute,
+                (route) => false,
+              );
+            },
+            style: getButtonStyle(),
+            child: const Text("Already registered? Login here."),
+          ),
         ],
       ),
     );

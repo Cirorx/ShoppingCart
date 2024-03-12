@@ -14,7 +14,7 @@ Widget infoWidget(String label) {
   );
 }
 
-ButtonStyle getCartButtonStyle() {
+ButtonStyle getButtonStyle() {
   return ButtonStyle(
     textStyle: MaterialStateProperty.all<TextStyle>(
       const TextStyle(
@@ -43,10 +43,9 @@ ButtonStyle getCartButtonStyle() {
   );
 }
 
-void showCartToast(String productTitle, bool added) {
-  String action = added ? 'added' : 'removed';
+void showToast(String text) {
   Fluttertoast.showToast(
-    msg: '$productTitle was $action from your cart.',
+    msg: text,
     toastLength: Toast.LENGTH_SHORT,
     gravity: ToastGravity.BOTTOM,
     timeInSecForIosWeb: 1,
@@ -54,4 +53,39 @@ void showCartToast(String productTitle, bool added) {
     textColor: Colors.white,
     fontSize: 16.0,
   );
+}
+
+class AuthTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final bool isPassoword;
+
+  const AuthTextField({
+    required this.controller,
+    required this.hintText,
+    this.isPassoword = false,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassoword,
+      enableSuggestions: !isPassoword,
+      autocorrect: !isPassoword,
+      keyboardType: TextInputType.emailAddress,
+      style: const TextStyle(
+        color: Colors
+            .black, // Use the appropriate color from your design guidelines
+        fontSize: 16.0, // Use the appropriate font size
+      ),
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: const TextStyle(
+          color: Colors.grey, // Use the appropriate hint text color
+        ),
+      ),
+    );
+  }
 }
