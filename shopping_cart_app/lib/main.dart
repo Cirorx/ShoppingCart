@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_cart_app/views/home.dart';
+import 'package:shopping_cart_app/views/products/home_view.dart';
 import 'service/auth/auth_service.dart';
 import 'utils/constants.dart';
-import 'views/login.dart';
-import 'views/register.dart';
-import 'views/verify_email.dart';
+import 'views/auth/login.dart';
+import 'views/auth/register.dart';
+import 'views/auth/verify_email.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +16,7 @@ void main() {
       ),
       home: const HomePage(),
       routes: {
-        homeRoute: (context) => const HomeScreen(),
+        homeRoute: (context) => const HomeView(),
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
         verifyEmailRoute: (context) => const VerifiyEmailView(),
@@ -39,7 +39,7 @@ class HomePage extends StatelessWidget {
 
             if (user != null) {
               if (user.isEmailVerified) {
-                return const HomeScreen();
+                return const HomeView();
               } else {
                 return const VerifiyEmailView();
               }

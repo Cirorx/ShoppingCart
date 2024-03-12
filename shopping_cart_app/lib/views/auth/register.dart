@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:shopping_cart_app/service/auth/auth_exceptions.dart';
 import 'package:shopping_cart_app/service/auth/auth_service.dart';
 
-import '../utils/constants.dart';
-import '../utils/dialogs/error_dialog.dart';
+import '../../utils/constants.dart';
+import '../../utils/dialogs/error_dialog.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -34,9 +34,12 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    const snackBar = SnackBar(
+      content: Text('An email has been sent!'),
+    );
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text("Register"),
       ),
       body: Column(
         children: [
@@ -61,49 +64,48 @@ class _LoginViewState extends State<LoginView> {
 
               try {
                 await AuthService.firebase()
-                    .logIn(email: email, password: password);
+                    .createUser(email: email, password: password);
+
+                //now that the user was successfully created, we need to verify it
+                // ignore: unused_local_variable
                 final user = AuthService.firebase().currentUser;
-                if (user?.isEmailVerified ?? false) {
-                  //user is verified
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    homeRoute,
-                    (route) => false,
-                  );
-                } else {
-                  //user isn't verified
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    verifyEmailRoute,
-                    (route) => false,
-                  );
-                }
-              } on UserNotFoundAuthException {
+                await AuthService.firebase().sendEmailVerification();
+
+                //little snackbar confirmation
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              } on WeakPasswordAuthException {
                 await showErrorDialog(
                   context,
-                  "User not found.",
+                  "Weak passoword.",
                 );
-              } on WrongPasswordAuthException {
+              } on EmailAlreadyInUseAuthException {
                 await showErrorDialog(
                   context,
-                  "Wrong credentials.",
+                  "Email is already in use.",
+                );
+              } on InvalidEmailAuthException {
+                await showErrorDialog(
+                  context,
+                  "Invalid email was entered.",
                 );
               } on GenericAuthException {
                 await showErrorDialog(
                   context,
-                  "Authentication error.",
+                  "Registration error.",
                 );
               }
             },
-            child: const Text("Login"),
+            child: const Text("Register"),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                registerRoute,
-                (route) => false,
-              );
-            },
-            child: const Text("Not registered? Register here!"),
-          )
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  loginRoute,
+                  (route) => false,
+                );
+              },
+              child: const Text("Already registered? Login here."))
         ],
       ),
     );

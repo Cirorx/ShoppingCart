@@ -1,30 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_cart_app/service/api/product_service.dart';
-import '../model/product_model.dart';
-import '../service/api/cart_service.dart';
-import '../utils/widgets.dart';
+import '../../model/product_model.dart';
+import '../../service/api/cart_service.dart';
+import '../../utils/widgets.dart';
 
-class ProductDetailScreen extends StatefulWidget {
+class ProductDetailView extends StatefulWidget {
   final String email;
   final String productId;
 
-  const ProductDetailScreen(
-      {Key? key, required this.productId, required this.email})
-      : super(key: key);
+  const ProductDetailView(
+      {super.key, required this.productId, required this.email});
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  State<ProductDetailView> createState() => _ProductDetailViewState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductDetailViewState extends State<ProductDetailView> {
   late Future<Product> _productFuture;
-  late int _stock;
+
   @override
   void initState() {
     super.initState();
     _productFuture = ProductService.getProductById(widget.productId);
-
-    ProductService.getInitialStock(widget.productId);
   }
 
   @override
@@ -54,70 +51,79 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               return Text('Error: ${snapshot.error}');
             } else {
               final product = snapshot.data!;
-              return SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: 300,
-                      child: PageView.builder(
-                        itemCount: product.images.length,
-                        itemBuilder: (context, index) {
-                          return Image.network(product.images[index]);
-                        },
-                      ),
+              return Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 300,
+                    child: PageView.builder(
+                      itemCount: product.images.length,
+                      itemBuilder: (context, index) {
+                        return Hero(
+                          tag: 'product-${product.id}',
+                          child: Image.network(product.images[index]),
+                        );
+                      },
                     ),
-                    Column(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 40,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        infoWidget('Description: \n ${product.description}\n'),
+                        infoWidget('Description: ${product.description}'),
                         infoWidget('Price: \$${product.price}'),
                         StreamBuilder<int>(
                           stream: ProductService.stockStream,
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               final stock = snapshot.data!;
-                              _stock = stock;
-                              return infoWidget('Stock: $_stock');
+                              return infoWidget('Stock: $stock');
                             } else {
-                              return infoWidget('Stock: Loading...');
+                              return infoWidget('Stock: ${product.stock}');
                             }
                           },
                         ),
                         infoWidget('Brand: ${product.brand}'),
                         infoWidget('Category: ${product.category}'),
+                        const SizedBox.square(
+                          dimension: 50,
+                        ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            infoWidget(
-                              'Add to cart',
-                            ),
-                            IconButton(
-                              iconSize: 20,
-                              icon: const Icon(Icons.add),
-                              onPressed: () {
-                                CartService.modifyCart(
+                            ElevatedButton(
+                              onPressed: () async {
+                                await CartService.modifyCart(
                                   widget.email,
                                   product.id,
                                   1,
                                 );
+                                showCartToast(product.title, true);
                               },
+                              style: getCartButtonStyle(),
+                              child: const Text('Add to cart'),
                             ),
-                            IconButton(
-                              iconSize: 20,
-                              icon: const Icon(Icons.remove),
-                              onPressed: () {
-                                CartService.modifyCart(
+                            ElevatedButton(
+                              onPressed: () async {
+                                await CartService.modifyCart(
                                   widget.email,
                                   product.id,
                                   -1,
                                 );
+                                showCartToast(product.title, false);
                               },
+                              style: getCartButtonStyle(),
+                              child: const Text('Remove from cart'),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
             }
           } else {

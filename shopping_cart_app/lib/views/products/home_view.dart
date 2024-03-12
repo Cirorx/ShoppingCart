@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_cart_app/service/api/app_user_service.dart';
-import 'package:shopping_cart_app/views/shopping_view.dart';
-import '../service/auth/auth_service.dart';
-import '../utils/constants.dart';
-import '../utils/dialogs/logout_dialog.dart';
-import '../utils/enums.dart';
+import 'package:shopping_cart_app/views/products/shopping_view.dart';
+import '../../service/auth/auth_service.dart';
+import '../../utils/constants.dart';
+import '../../utils/dialogs/logout_dialog.dart';
+import '../../utils/enums.dart';
 import 'cart_view.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
   late String _email;
   late bool _isLoading;
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> widgetOptions = <Widget>[
-      ShoppingList(email: _email),
+      ShoppingView(email: _email),
       CartView(email: _email),
     ];
 

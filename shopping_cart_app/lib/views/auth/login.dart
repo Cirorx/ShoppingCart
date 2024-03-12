@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:shopping_cart_app/service/auth/auth_exceptions.dart';
 import 'package:shopping_cart_app/service/auth/auth_service.dart';
 
-import '../utils/constants.dart';
-import '../utils/dialogs/error_dialog.dart';
+import '../../utils/constants.dart';
+import '../../utils/dialogs/error_dialog.dart';
 
-class RegisterView extends StatefulWidget {
-  const RegisterView({super.key});
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
 
   @override
-  State<RegisterView> createState() => _RegisterViewState();
+  State<LoginView> createState() => _LoginViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -34,12 +34,9 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    const snackBar = SnackBar(
-      content: Text('An email has been sent!'),
-    );
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Register"),
+        title: const Text("Login"),
       ),
       body: Column(
         children: [
@@ -64,48 +61,49 @@ class _RegisterViewState extends State<RegisterView> {
 
               try {
                 await AuthService.firebase()
-                    .createUser(email: email, password: password);
-
-                //now that the user was successfully created, we need to verify it
-                // ignore: unused_local_variable
+                    .logIn(email: email, password: password);
                 final user = AuthService.firebase().currentUser;
-                await AuthService.firebase().sendEmailVerification();
-
-                //little snackbar confirmation
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              } on WeakPasswordAuthException {
+                if (user?.isEmailVerified ?? false) {
+                  //user is verified
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    homeRoute,
+                    (route) => false,
+                  );
+                } else {
+                  //user isn't verified
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    verifyEmailRoute,
+                    (route) => false,
+                  );
+                }
+              } on UserNotFoundAuthException {
                 await showErrorDialog(
                   context,
-                  "Weak passoword.",
+                  "User not found.",
                 );
-              } on EmailAlreadyInUseAuthException {
+              } on WrongPasswordAuthException {
                 await showErrorDialog(
                   context,
-                  "Email is already in use.",
-                );
-              } on InvalidEmailAuthException {
-                await showErrorDialog(
-                  context,
-                  "Invalid email was entered.",
+                  "Wrong credentials.",
                 );
               } on GenericAuthException {
                 await showErrorDialog(
                   context,
-                  "Registration error.",
+                  "Authentication error.",
                 );
               }
             },
-            child: const Text("Register"),
+            child: const Text("Login"),
           ),
           TextButton(
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  loginRoute,
-                  (route) => false,
-                );
-              },
-              child: const Text("Already registered? Login here."))
+            onPressed: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                registerRoute,
+                (route) => false,
+              );
+            },
+            child: const Text("Not registered? Register here!"),
+          )
         ],
       ),
     );

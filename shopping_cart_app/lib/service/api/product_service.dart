@@ -10,8 +10,9 @@ class ProductService {
 
   static Stream<int> get stockStream => _stockStreamController.stream;
 
-  static void updateStockStream(int newStock) {
-    _stockStreamController.add(newStock);
+  static void updateStockStream(productId) async {
+    final updatedProduct = await getProductById(productId);
+    _stockStreamController.add(updatedProduct.stock);
   }
 
   static Future<List<Product>> getProducts() async {
@@ -33,12 +34,5 @@ class ProductService {
   static List<Product> _parseProducts(dynamic response) {
     final List<dynamic> jsonList = json.decode(response);
     return jsonList.map((json) => Product.fromJson(json)).toList();
-  }
-
-  static Future<int> getInitialStock(String productId) async {
-    final product = await getProductById(productId);
-    final stock = product.stock;
-    updateStockStream(stock);
-    return stock;
   }
 }

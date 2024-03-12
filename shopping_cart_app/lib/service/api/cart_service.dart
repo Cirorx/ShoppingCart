@@ -13,7 +13,6 @@ class CartService {
   static Future<void> modifyCart(
       String email, String productId, int quantity) async {
     await ApiService.modifyCart(email, productId, quantity);
-    final updatedProduct = await ProductService.getProductById(productId);
-    ProductService.updateStockStream(updatedProduct.stock);
+    ProductService.updateStockStream(productId);
   }
 }

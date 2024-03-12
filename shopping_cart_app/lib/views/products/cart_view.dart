@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_cart_app/views/product_detail_view.dart';
-import '../service/api/cart_service.dart';
+import 'package:shopping_cart_app/views/products/product_detail_view.dart';
+import '../../service/api/cart_service.dart';
 
 class CartView extends StatelessWidget {
   final String email;
@@ -35,7 +35,7 @@ class CartView extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProductDetailScreen(
+                      builder: (context) => ProductDetailView(
                         productId: product['productId'],
                         email: email,
                       ),

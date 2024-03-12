@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_cart_app/service/auth/auth_service.dart';
 
-import '../utils/constants.dart';
+import '../../utils/constants.dart';
 
 class VerifiyEmailView extends StatefulWidget {
   const VerifiyEmailView({super.key});
